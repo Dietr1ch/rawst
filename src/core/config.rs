@@ -9,21 +9,21 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use toml;
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct Config {
+pub struct FileDownloadConfig {
     pub download_path: String,
     pub cache_path: String,
     pub config_path: String,
     pub threads: usize,
 }
 
-impl Default for Config {
+impl Default for FileDownloadConfig {
     fn default() -> Self {
         let user_dirs = UserDirs::new().unwrap();
         let base_dirs = BaseDirs::new().unwrap();
 
         let local_dir = base_dirs.data_local_dir();
 
-        Config {
+        FileDownloadConfig {
             download_path: user_dirs.download_dir().unwrap().display().to_string(),
             cache_path: local_dir.join("rawst").join("cache").display().to_string(),
             config_path: local_dir.display().to_string(),
@@ -32,9 +32,9 @@ impl Default for Config {
     }
 }
 
-impl Config {
-    pub async fn build() -> Result<Config, RawstErr> {
-        let default = Config::default();
+impl FileDownloadConfig {
+    pub async fn build() -> Result<FileDownloadConfig, RawstErr> {
+        let default = FileDownloadConfig::default();
 
         let content = toml::to_string(&default).unwrap();
 
@@ -68,7 +68,7 @@ impl Config {
         Ok(default)
     }
 
-    pub async fn load() -> Result<Config, RawstErr> {
+    pub async fn load() -> Result<FileDownloadConfig, RawstErr> {
         let config_dir = BaseDirs::new()
             .unwrap()
             .data_local_dir()
@@ -83,7 +83,7 @@ impl Config {
             .await
             .map_err(RawstErr::FileError)?;
 
-        let config: Config = toml::from_str(&file_content).unwrap();
+        let config: FileDownloadConfig = toml::from_str(&file_content).unwrap();
 
         Ok(config)
     }

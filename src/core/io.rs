@@ -1,4 +1,4 @@
-use crate::core::config::Config;
+use crate::core::config::FileDownloadConfig;
 use crate::core::errors::RawstErr;
 use crate::core::task::{ChunkType, HttpTask};
 use crate::core::utils::FileName;
@@ -14,7 +14,7 @@ use reqwest::Response;
 use tokio::fs::{remove_file, File};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader, BufWriter};
 
-pub async fn merge_files(filename: &FileName, config: &Config) -> Result<(), RawstErr> {
+pub async fn merge_files(filename: &FileName, config: &FileDownloadConfig) -> Result<(), RawstErr> {
     let output_path = Path::new(&config.download_path).join(filename.to_string());
 
     let output_file = File::create(output_path)
@@ -154,7 +154,7 @@ pub async fn create_cache(
 pub fn get_cache_sizes(
     filename: String,
     threads: usize,
-    config: Config,
+    config: FileDownloadConfig,
 ) -> Result<Vec<u64>, RawstErr> {
     let mut cache_sizes: Vec<u64> = vec![];
 

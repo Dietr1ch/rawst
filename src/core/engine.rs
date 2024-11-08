@@ -1,20 +1,27 @@
-use crate::core::config::Config;
+use std::path::PathBuf;
+
+use futures::stream::{self, StreamExt};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+
+use crate::core::config::FileDownloadConfig;
 use crate::core::errors::RawstErr;
 use crate::core::http_handler::HttpHandler;
 use crate::core::task::HttpTask;
 use crate::core::utils::{extract_filename_from_header, extract_filename_from_url};
 
-use futures::stream::{self, StreamExt};
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-
 pub struct Engine {
-    config: Config,
+    config: FileDownloadConfig,
     http_handler: HttpHandler,
     multi_bar: MultiProgress,
 }
 
+pub struct DownloadTaskArgs {
+    pub iri: String,
+    pub output_path: Option<PathBuf>,
+}
+
 impl Engine {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: FileDownloadConfig) -> Self {
         Engine {
             config,
             http_handler: HttpHandler::new(),
@@ -70,21 +77,28 @@ impl Engine {
 
     pub async fn create_http_task(
         &mut self,
-        url: String,
-        save_as: Option<&String>,
+        download_task: DownloadTaskArgs,
     ) -> Result<HttpTask, RawstErr> {
-        let cached_headers = self.http_handler.cache_headers(&url).await?;
+        let cached_headers = self.http_handler.cache_headers(&download_task.iri).await?;
 
         let mut filename = match extract_filename_from_header(&cached_headers) {
             Some(result) => result,
-            None => extract_filename_from_url(&url),
+            None => extract_filename_from_url(&download_task.iri),
         };
 
-        if save_as.is_some() {
-            filename.stem = save_as.unwrap().to_owned();
+        if let Some(output_path) = download_task.output_path {
+            filename.stem = output_path
+                .into_os_string()
+                .into_string()
+                .map_err(|_| RawstErr::InvalidArgs)?
         }
 
-        let mut task = HttpTask::new(url, filename, cached_headers, self.config.threads);
+        let mut task = HttpTask::new(
+            download_task.iri,
+            filename,
+            cached_headers,
+            self.config.threads,
+        );
 
         // checks if the server allows to receive byte ranges for concurrent download
         // otherwise uses single thread

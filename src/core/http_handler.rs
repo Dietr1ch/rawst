@@ -1,4 +1,4 @@
-use crate::core::config::Config;
+use crate::core::config::FileDownloadConfig;
 use crate::core::errors::RawstErr;
 use crate::core::io::{create_cache, create_file, merge_files};
 use crate::core::task::{ChunkType, HttpTask};
@@ -26,7 +26,7 @@ impl HttpHandler {
         &self,
         task: &HttpTask,
         progressbar: &ProgressBar,
-        config: &Config,
+        config: &FileDownloadConfig,
     ) -> Result<(), RawstErr> {
         let mut headers = HeaderMap::new();
 
@@ -55,7 +55,7 @@ impl HttpHandler {
         &self,
         task: &HttpTask,
         progressbar: &ProgressBar,
-        config: &Config,
+        config: &FileDownloadConfig,
     ) -> Result<(), RawstErr> {
         // Creates a stream iter for downloading each chunk separately
         let download_tasks = stream::iter((0..config.threads).map(|i| {
@@ -94,7 +94,7 @@ impl HttpHandler {
         Ok(())
     }
 
-    pub async fn cache_headers(&self, url: &String) -> Result<HeaderMap, RawstErr> {
+    pub async fn cache_headers(&self, url: &str) -> Result<HeaderMap, RawstErr> {
         let response = self
             .client
             .head(url)

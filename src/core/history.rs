@@ -1,4 +1,4 @@
-use crate::core::config::Config;
+use crate::core::config::FileDownloadConfig;
 use crate::core::errors::RawstErr;
 use crate::core::task::HttpTask;
 
@@ -61,7 +61,12 @@ impl HistoryManager {
         }
     }
 
-    pub fn add_record(&self, task: &HttpTask, config: &Config, id: String) -> Result<(), RawstErr> {
+    pub fn add_record(
+        &self,
+        task: &HttpTask,
+        config: &FileDownloadConfig,
+        id: String,
+    ) -> Result<(), RawstErr> {
         let file_path = Path::new(&self.history_file_path)
             .join("rawst")
             .join("history.json");

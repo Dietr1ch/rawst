@@ -36,4 +36,11 @@ impl fmt::Display for RawstErr {
     }
 }
 
-impl std::error::Error for RawstErr {}
+impl From<RawstErr> for std::io::Error {
+    fn from(e: RawstErr) -> std::io::Error {
+        match e {
+            RawstErr::InvalidThreadCount => std::io::ErrorKind::InvalidInput.into(),
+            _ => std::io::ErrorKind::Other.into(),
+        }
+    }
+}
