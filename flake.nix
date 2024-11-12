@@ -65,9 +65,10 @@
 
                   # https://devenv.sh/reference/options/#languagesrustrustflags
                   # NOTE: This must be kept in sync with .cargo/config.toml
-                  rustflags =
-                    nixpkgs.lib.strings.concatStringsSep " " [
-                    ];
+                  rustflags = nixpkgs.lib.strings.concatStringsSep " " [
+                    # tokio's console-subscriber
+                    "--cfg=tokio_unstable"
+                  ];
                 };
               };
 
@@ -86,6 +87,10 @@
                 cargo-edit
                 cargo-modules
                 cargo-outdated
+
+                # gRPC
+                tokio-console
+                grpc-tools
               ];
 
               # https://devenv.sh/reference/options/#pre-commit
