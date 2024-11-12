@@ -19,6 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install gRPC build dependencies
+        run: sudo snap install protobuf
       - name: Install stable Rust
         uses: dtolnay/rust-toolchain@nightly
         with:

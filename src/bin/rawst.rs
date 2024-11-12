@@ -18,7 +18,7 @@ async fn main() -> Result<(), RawstErr> {
             config
         }
     };
-    
+
     if args.verbosity.is_some() || args.log_verbosity.is_some() {
         logger::init(&config, &args).map_err(|_| RawstErr::InitilisationError)?;
     }
