@@ -30,7 +30,7 @@ pub async fn resume_download(args: ResumeArgs, config: Config) -> Result<(),Raws
         Ok(())
     }
     else {
-        let id= ids.iter().next().unwrap().to_string();
+        let id= ids.first().unwrap().to_string();
         engine.process_resume_request(id).await
 
     }

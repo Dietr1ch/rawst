@@ -70,8 +70,8 @@ impl HttpHandler {
                 if let ChunkType::Multiple(chunks) = &task.chunk_data {
 
                     if chunks[i].is_downloaded() {
-                        log::trace!("Chunk number {i:?} skipped: {:?}", chunks[i]);
-                        ()
+                        log::trace!("Chunk number {i:?} already downloaded");
+                        return Ok(())
                     }
 
                     let response = client
