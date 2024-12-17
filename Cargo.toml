@@ -17,7 +17,7 @@ clap = { version = "4.5.20", features = ["cargo", "derive"] }
 clap-num = "1.1.1"
 clap_complete = "4.5.37"
 concolor-clap = "0.1.0"
-directories = "5.0.1"
+dirs = "5.0.1"
 fern = { version = "0.7.0", features = ["chrono", "colored"] }
 futures = "0.3.31"
 humantime = "2.1.0"

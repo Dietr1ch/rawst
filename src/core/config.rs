@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use directories::{BaseDirs, UserDirs};
 use serde::{Deserialize, Serialize};
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
@@ -52,20 +51,29 @@ fn format_timedate(dt: chrono::DateTime<chrono::Local>) -> String {
 
 impl Default for Config {
     fn default() -> Self {
-        let user_dirs = UserDirs::new().unwrap();
-        let base_dirs = BaseDirs::new().unwrap();
-
         // ~/.config/rawst/
-        let config_dir = base_dirs.config_dir().join("rawst").to_path_buf();
+        let config_dir = dirs::config_dir()
+            .expect("Couldn't find Configuration directory")
+            .join("rawst")
+            .to_path_buf();
         // ~/.config/rawst/config.toml
         let config_file_path = config_dir.join("config.toml");
 
         // ~/.cache/rawst/
-        let cache_dir = base_dirs.cache_dir().join("rawst").to_path_buf();
+        let cache_dir = dirs::cache_dir()
+            .expect("Couldn't find Cache directory")
+            .join("rawst")
+            .to_path_buf();
         // ~/.cache/rawst/history.json
         let history_file_path = cache_dir.join("history.json");
         // ~/.cache/rawst/logs/
         let log_dir = cache_dir.join("logs").to_path_buf();
+
+        // ~/Downloads
+        let download_dir = dirs::download_dir()
+            .expect("Couldn't find Downloads directory")
+            .join("rawst")
+            .to_path_buf();
 
         Config {
             config_dir,
@@ -73,7 +81,7 @@ impl Default for Config {
             cache_dir,
             history_file_path,
             log_dir,
-            download_dir: user_dirs.download_dir().unwrap().to_path_buf(),
+            download_dir,
 
             threads: 1,
         }
@@ -82,8 +90,10 @@ impl Default for Config {
 
 impl Config {
     pub async fn load() -> Result<Config, RawstErr> {
-        let base_dirs = BaseDirs::new().unwrap();
-        let config_dir = base_dirs.config_dir().join("rawst").to_path_buf();
+        let config_dir = dirs::config_dir()
+            .expect("Couldn't find Configuration directory")
+            .join("rawst")
+            .to_path_buf();
         let config_file_path = config_dir.join("config.toml");
 
         log::debug!("Loading config from '{config_file_path:?}'");

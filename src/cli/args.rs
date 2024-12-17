@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use directories::BaseDirs;
 use iri_string::types::IriString;
 
 use clap::Args;
@@ -77,7 +76,7 @@ fn limit_max_download_threads(s: &str) -> Result<u8, String> {
 #[derive(Args, Debug, PartialEq)]
 pub struct ResumeArgs {
     /// The Downloads to resume
-    #[arg(default_value="auto")]
+    #[arg(default_value = "auto")]
     pub download_ids: Vec<String>,
 }
 
@@ -123,10 +122,13 @@ pub struct Arguments {
 
 fn generate_completion_script<G: Generator>(gen: G, cmd: &mut clap::Command) {
     let cmd_name = cmd.get_name().to_string();
-    let base_dirs = BaseDirs::new().unwrap();
-    let config_dir = base_dirs.config_dir().join("rawst").to_path_buf();
-    clap_complete::generate_to(gen, cmd, cmd_name, &config_dir).unwrap();
-    println!("Generated completion script at {}", config_dir.display())
+    // ~/.cache/rawst/
+    let cache_dir = dirs::cache_dir()
+        .expect("Couldn't find Cache directory")
+        .join("rawst")
+        .to_path_buf();
+    clap_complete::generate_to(gen, cmd, cmd_name, &cache_dir).unwrap();
+    println!("Generated completion script at {}", cache_dir.display())
 }
 
 pub fn get() -> Arguments {
